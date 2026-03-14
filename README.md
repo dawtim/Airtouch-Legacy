@@ -1,6 +1,6 @@
 # AirTouch Legacy for Home Assistant
 
-HACS-ready custom integration scaffold for legacy Polyaire AirTouch controllers.
+HACS-ready custom integration scaffold for legacy Polyaire AirTouch controllers (2012-2014) ZoneController.
 
 ## Features
 - Config flow
