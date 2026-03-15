@@ -1,17 +1,18 @@
 from datetime import timedelta
 import logging
+
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class AirTouchCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, client) -> None:
-
-    super().__init__(
-        hass,
-        _LOGGER,
-        name="AirTouch",
-        update_interval=timedelta(seconds=10),
+        super().__init__(
+            hass,
+            _LOGGER,
+            name="AirTouch",
+            update_interval=timedelta(seconds=10),
         )
         self.client = client
 
