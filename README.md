@@ -2,6 +2,8 @@
 
 HACS-ready custom integration scaffold for legacy Polyaire AirTouch controllers (2012-2014) ZoneController.
 
+NOTE this is still under development and not ready for public use
+
 ## Features
 - Config flow
 - Climate entity
