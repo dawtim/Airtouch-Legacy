@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .const import ZONE_COUNT
+
 
 class AirTouchFrame:
     HEADER_RESPONSE = b"\x66\xfa"
@@ -29,10 +31,8 @@ class AirTouchFrame:
         if not data.startswith(AirTouchFrame.HEADER_RESPONSE):
             raise ValueError("Unexpected frame header")
 
-        # Reverse-engineered best-effort field map
-        zone_count = data[6] if len(data) > 6 else 0
         zones = []
-        for i in range(zone_count):
+        for i in range(ZONE_COUNT):
             base = 20 + (i * 8)
             if len(data) <= base + 2:
                 break
@@ -47,11 +47,6 @@ class AirTouchFrame:
             )
 
         return {
-            "current_temp": data[10] if len(data) > 10 else None,
-            "setpoint": data[11] if len(data) > 11 else None,
-            "mode": data[12] if len(data) > 12 else None,
-            "fan": data[13] if len(data) > 13 else None,
-            "zone_count": zone_count,
             "zones": zones,
             "raw_hex": data.hex(),
         }

@@ -20,7 +20,10 @@ class AirTouchZoneSwitch(AirTouchEntity, SwitchEntity):
 
     @property
     def is_on(self):
-        return self.coordinator.data["zones"][self.zone_id]["enabled"]
+        zones = self.coordinator.data.get("zones", [])
+        if self.zone_id >= len(zones):
+            return False
+        return zones[self.zone_id]["enabled"]
 
     async def async_turn_on(self, **kwargs):
         await self.hass.async_add_executor_job(self.coordinator.client.set_zone, self.zone_id, True)

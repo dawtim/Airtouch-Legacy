@@ -1,44 +1,37 @@
 # AirTouch Legacy
 
-Custom HACS-compatible Home Assistant integration for legacy Polyaire AirTouch controllers (2012-2014) ZoneController..
-
-NOTE this is still under development and not ready for public use
-
-
+Custom HACS-compatible Home Assistant integration for legacy Polyaire AirTouch controllers.
 
 ## Current status
 
-This integration is based on reverse-engineering from packet captures supplied by the user.
-It is configured for:
+This package is narrowed to:
+- exactly 6 zones
+- zone on/off control
+- zone damper percentage control
+- default TCP port `8899`
 
-* Controller IP: user-specified
-* Default TCP port: `8899`
-* Request header: `0x55`
-* Response header: `0x66FA`
-
-## Features
-
-* Config flow
-* Climate entity
-* Zone switches
-* Zone temperature sensors
-* Zone damper number entities
-* Diagnostics support
+It intentionally does **not** create climate or temperature entities.
 
 ## Important
 
-The network endpoint and polling frame are grounded in packet captures.
-The field layout for zone parsing and write commands remains reverse-engineered and may require adjustment for your exact controller firmware.
+This integration is still based on reverse-engineering from packet captures.
+The network endpoint and poll frame are grounded in capture data, but zone field offsets and
+write commands are still best-effort and may require further adjustment for your controller firmware.
+
+## Entities created
+
+- `switch.airtouch_zone_1` through `switch.airtouch_zone_6`
+- `number.airtouch_zone_1_damper` through `number.airtouch_zone_6_damper`
 
 ## Installation
 
-1. Add this repository to HACS as a custom repository, category **Integration**, or copy `custom\_components/airtouch\_legacy` into your Home Assistant config directory.
+1. Add this repository to HACS as a custom repository, category **Integration**, or copy
+   `custom_components/airtouch_legacy` into your Home Assistant config directory.
 2. Restart Home Assistant.
-3. Go to **Settings → Devices \& Services → Add Integration**.
-4. Add **AirTouch Legacy**.
+3. Remove any previous AirTouch Legacy integration entry.
+4. Add **AirTouch Legacy** again.
 5. Enter the controller IP and port.
 
 ## Default port
 
 The current default port is `8899`.
-
