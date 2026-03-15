@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from .const import ZONE_COUNT
-
 
 class AirTouchFrame:
     HEADER_RESPONSE = b"\x66\xfa"
@@ -16,12 +14,16 @@ class AirTouchFrame:
     def build_damper_command(zone: int, percent: int) -> bytes:
         percent = max(0, min(100, percent))
 
+        # Best-effort damper command template derived from packet captures.
         frame = bytearray.fromhex(
-            "55010c100000000000000000720000000000000001000000a049154c0100000040153c4c0100000080153c4c01000000c015"
+            "55010c100000000000000000720000000000000000000000a08912440100000040d53b440100000080d53b4401000000c0d5"
         )
 
-        # Reverse-engineered best-effort damper encoding from packet captures.
-        frame[12] = 0x72 + percent
+        # Best-effort encoded value seen changing between command families.
+        frame[12] = 0x72 + max(0, min(100, percent))
+
+        # Zone field is not fully decoded; retain the requested zone in a likely slot.
+        frame[16] = zone & 0xFF
 
         return bytes(frame)
 
@@ -30,20 +32,8 @@ class AirTouchFrame:
         if not data.startswith(AirTouchFrame.HEADER_RESPONSE):
             raise ValueError("Unexpected frame header")
 
-        zones = []
-        for i in range(ZONE_COUNT):
-            base = 20 + (i * 8)
-            if len(data) <= base + 1:
-                break
-            zones.append(
-                {
-                    "id": i,
-                    "name": f"Zone {i + 1}",
-                    "damper": data[base + 1],
-                }
-            )
-
+        # Readback fields are not considered authoritative.
         return {
-            "zones": zones,
+            "online": True,
             "raw_hex": data.hex(),
         }
