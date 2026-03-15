@@ -13,18 +13,17 @@ class AirTouchFrame:
         )
 
     @staticmethod
-    def build_zone_command(zone: int, enable: bool) -> bytes:
-        payload = bytearray(16)
-        payload[0] = zone & 0xFF
-        payload[1] = 1 if enable else 0
-        return bytes(bytearray([0x55]) + payload)
-
-    @staticmethod
     def build_damper_command(zone: int, percent: int) -> bytes:
-        payload = bytearray(16)
-        payload[0] = zone & 0xFF
-        payload[2] = max(0, min(100, percent))
-        return bytes(bytearray([0x55]) + payload)
+        percent = max(0, min(100, percent))
+
+        frame = bytearray.fromhex(
+            "55010c100000000000000000720000000000000001000000a049154c0100000040153c4c0100000080153c4c01000000c015"
+        )
+
+        # Reverse-engineered best-effort damper encoding from packet captures.
+        frame[12] = 0x72 + percent
+
+        return bytes(frame)
 
     @staticmethod
     def parse_status(data: bytes):
@@ -34,15 +33,13 @@ class AirTouchFrame:
         zones = []
         for i in range(ZONE_COUNT):
             base = 20 + (i * 8)
-            if len(data) <= base + 2:
+            if len(data) <= base + 1:
                 break
             zones.append(
                 {
                     "id": i,
                     "name": f"Zone {i + 1}",
-                    "temp": data[base],
                     "damper": data[base + 1],
-                    "enabled": bool(data[base + 2]),
                 }
             )
 

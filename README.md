@@ -6,22 +6,23 @@ Custom HACS-compatible Home Assistant integration for legacy Polyaire AirTouch c
 
 This package is narrowed to:
 - exactly 6 zones
-- zone on/off control
-- zone damper percentage control
+- damper percentage control only
 - default TCP port `8899`
 
-It intentionally does **not** create climate or temperature entities.
-
-## Important
-
-This integration is still based on reverse-engineering from packet captures.
-The network endpoint and poll frame are grounded in capture data, but zone field offsets and
-write commands are still best-effort and may require further adjustment for your controller firmware.
+It intentionally does **not** create:
+- climate entities
+- temperature sensors
+- zone switches
 
 ## Entities created
 
-- `switch.airtouch_zone_1` through `switch.airtouch_zone_6`
 - `number.airtouch_zone_1_damper` through `number.airtouch_zone_6_damper`
+
+## Important
+
+This integration is based on reverse-engineering from packet captures.
+The network endpoint and polling frame are grounded in capture data.
+The damper write format is based on observed packet differences, but the readback offsets may still require adjustment for your exact controller firmware.
 
 ## Installation
 

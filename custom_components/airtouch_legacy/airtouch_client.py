@@ -24,8 +24,5 @@ class AirTouchClient:
     def poll(self):
         return AirTouchFrame.parse_status(self._send(AirTouchFrame.build_poll()))
 
-    def set_zone(self, zone: int, enable: bool) -> None:
-        self._send(AirTouchFrame.build_zone_command(zone, enable))
-
     def set_damper(self, zone: int, percent: int) -> None:
         self._send(AirTouchFrame.build_damper_command(zone, percent))
