@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 from homeassistant.components.number import NumberEntity
+
 from .const import DOMAIN
 from .entity import AirTouchEntity
+
 
 async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     entities = [AirTouchZoneDamper(coordinator, zone["id"]) for zone in coordinator.data.get("zones", [])]
     async_add_entities(entities)
+
 
 class AirTouchZoneDamper(AirTouchEntity, NumberEntity):
     _attr_native_min_value = 0
@@ -26,3 +31,7 @@ class AirTouchZoneDamper(AirTouchEntity, NumberEntity):
             self.coordinator.client.set_damper, self.zone_id, int(value)
         )
         await self.coordinator.async_request_refresh()
+
+    @property
+    def available(self):
+        return self.coordinator.last_update_success

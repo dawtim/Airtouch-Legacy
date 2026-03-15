@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import voluptuous as vol
 from homeassistant import config_entries
 
-from .const import DOMAIN
+from .const import DOMAIN, DEFAULT_PORT
 
 
 class AirTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -9,10 +11,10 @@ class AirTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         if user_input is not None:
-            await self.async_set_unique_id(user_input["host"])
+            await self.async_set_unique_id(f"{user_input['host']}:{user_input['port']}")
             self._abort_if_unique_id_configured()
             return self.async_create_entry(
-                title=f"AirTouch {user_input['host']}",
+                title=f"AirTouch {user_input['host']}:{user_input['port']}",
                 data=user_input,
             )
 
@@ -21,6 +23,7 @@ class AirTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required("host"): str,
+                    vol.Required("port", default=DEFAULT_PORT): int,
                 }
             ),
         )

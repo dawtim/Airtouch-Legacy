@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import socket
+
 from .const import DEFAULT_PORT
 from .airtouch_protocol import AirTouchFrame
+
 
 class AirTouchClient:
     def __init__(self, host: str, port: int = DEFAULT_PORT) -> None:
