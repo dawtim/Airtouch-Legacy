@@ -1,30 +1,38 @@
 # AirTouch Legacy
 
-HACS-compatible Home Assistant custom integration for legacy Polyaire AirTouch / ZoneTouch controllers.
+HACS-compatible Home Assistant integration for legacy Polyaire AirTouch / ZoneTouch controllers.
 
-## This build adds discovery support
+## This build
 
-What this package includes:
-- TCP control on port `8899`
-- UDP discovery support on port `48899`
-- 6 damper entities only
-- APK-derived 13-byte step commands
-- optimistic 10% damper values
+This package is based on the APK/socket logic and implements:
 
-## Discovery behavior
+- TCP port `8899`
+- UDP discovery on `48899`
+- 13-byte control packets with checksum
+- persistent TCP listener
+- non-optimistic zone switch state
+- non-optimistic damper state
+- 6 zones
 
-On the config flow screen you can either:
-- enter a host manually, or
-- leave host blank and tick **Auto discover**
+## State parsing used in this build
 
-The integration will try:
-1. passive UDP discovery on port `48899`
-2. active UDP broadcast parsing for `ip,mac,AirTouch` replies
-3. a light TCP 8899 scan fallback on the local `/24` subnet
+This build parses the large controller state frame using these APK-derived offsets:
+
+- zone state bytes start at `0xE7`
+- damper bytes start at `0x135`
+- checksum byte at `0x145`
+
+For the first 6 zones:
+- zone state: bytes `0xE7` .. `0xEC`
+- zone damper: bytes `0x135` .. `0x13A`
+
+Damper values are interpreted as raw step values `0..10` and displayed as percentages `0..100`.
+
+## Entities created
+
+- `switch.airtouch_zone_1` ... `switch.airtouch_zone_6`
+- `number.airtouch_zone_1_damper` ... `number.airtouch_zone_6_damper`
 
 ## Notes
 
-This package is still conservative:
-- it does not parse true controller damper readback yet
-- it follows the APK step-command logic for writes
-- discovery is best-effort and may still require manual IP entry on some networks
+This is the first non-optimistic/stateful build. If your controller firmware differs, offsets may still need adjustment.

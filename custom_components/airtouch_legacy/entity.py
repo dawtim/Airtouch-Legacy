@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 
-class AirTouchEntity(Entity):
+class AirTouchEntity(CoordinatorEntity):
     @property
     def device_info(self):
         return {

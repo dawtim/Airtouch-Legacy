@@ -20,33 +20,18 @@ class AirTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             if auto_discover and not host:
                 discovered = await self.hass.async_add_executor_job(discover_controller)
-                if not discovered:
-                    errors["base"] = "cannot_connect"
-                else:
+                if discovered:
                     host = discovered["host"]
-                    await self.async_set_unique_id(f"{host}:{port}")
-                    self._abort_if_unique_id_configured()
-                    return self.async_create_entry(
-                        title=f"AirTouch {host}:{port}",
-                        data={
-                            "host": host,
-                            "port": port,
-                            "discovery_method": discovered.get("raw", "udp"),
-                        },
-                    )
-            elif host:
+                else:
+                    errors["base"] = "cannot_connect"
+
+            if host:
                 await self.async_set_unique_id(f"{host}:{port}")
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
                     title=f"AirTouch {host}:{port}",
-                    data={
-                        "host": host,
-                        "port": port,
-                        "discovery_method": "manual",
-                    },
+                    data={"host": host, "port": port},
                 )
-            else:
-                errors["base"] = "cannot_connect"
 
         return self.async_show_form(
             step_id="user",
