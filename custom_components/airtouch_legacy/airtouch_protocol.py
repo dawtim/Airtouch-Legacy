@@ -1,12 +1,7 @@
 from __future__ import annotations
 
 from .const import (
-    INIT_PACKET,
     ZONE_COUNT,
-    ZONE_STATE_OFFSET,
-    ZONE_DAMPER_OFFSET,
-    CHECKSUM_OFFSET,
-    STATE_MIN_LEN,
     ZONE_SWITCH_MAP,
     ZONE_STEP_MAP,
 )
@@ -19,7 +14,12 @@ class AirTouchFrame:
 
     @staticmethod
     def build_init_packet() -> bytes:
-        return INIT_PACKET
+        frame = bytearray(13)
+        frame[0] = 0x55
+        frame[1] = 0x00
+        frame[2] = 0x0C
+        frame[12] = AirTouchFrame.checksum(frame)
+        return bytes(frame)
 
     @staticmethod
     def build_zone_switch(zone: int, turn_on: bool) -> bytes:
@@ -48,32 +48,44 @@ class AirTouchFrame:
         return bytes(frame)
 
     @staticmethod
-    def validate_state_frame(data: bytes) -> bool:
-        if len(data) < STATE_MIN_LEN:
-            return False
-        checksum = sum(data[:CHECKSUM_OFFSET]) & 0xFF
-        return checksum == data[CHECKSUM_OFFSET]
-
-    @staticmethod
     def parse_state(data: bytes) -> dict:
-        if len(data) < STATE_MIN_LEN:
-            raise ValueError(f"State frame too short: {len(data)}")
-        if not AirTouchFrame.validate_state_frame(data):
-            raise ValueError("Invalid state checksum")
+        if not data:
+            raise ValueError("Empty controller response")
 
+        # Use the last 66fa frame if multiple chunks were concatenated.
+        start = data.rfind(b"\x66\xfa")
+        if start != -1:
+            frame = data[start:]
+        else:
+            frame = data
+
+        # Best-effort short-frame parser.
+        # This does NOT claim the offsets are final.
         zones = []
         for i in range(ZONE_COUNT):
-            raw_state = data[ZONE_STATE_OFFSET + i]
-            raw_damper = data[ZONE_DAMPER_OFFSET + i]
-            zones.append({
-                "id": i,
-                "enabled": bool(raw_state),
-                "damper_raw": raw_damper,
-                "damper": max(0, min(100, int(raw_damper) * 10)),
-            })
+            base = 20 + (i * 8)
+            enabled = False
+            damper = 0
+
+            if len(frame) > base + 2:
+                enabled = bool(frame[base + 2])
+
+            if len(frame) > base + 1:
+                raw = frame[base + 1]
+                # Clamp guessed readback into 0..100
+                damper = max(0, min(100, int(raw)))
+
+            zones.append(
+                {
+                    "id": i,
+                    "enabled": enabled,
+                    "damper": damper,
+                    "damper_raw": frame[base + 1] if len(frame) > base + 1 else None,
+                }
+            )
 
         return {
             "zones": zones,
-            "raw_hex": data.hex(),
-            "frame_len": len(data),
+            "raw_hex": frame.hex(),
+            "frame_len": len(frame),
         }
