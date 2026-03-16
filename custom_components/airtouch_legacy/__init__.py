@@ -4,8 +4,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .airtouch_client import AirTouchClient
-from .coordinator import AirTouchCoordinator
-from .const import DOMAIN, PLATFORMS
+from .const import DOMAIN, PLATFORMS, ZONE_COUNT, DEFAULT_DAMPER
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -14,16 +13,13 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     host = entry.data["host"]
-    port = entry.data.get("port", 8899)
+    port = entry.data.get("port")
 
     client = AirTouchClient(host, port)
-    coordinator = AirTouchCoordinator(hass, client)
-    await coordinator.async_config_entry_first_refresh()
-
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
-        "coordinator": coordinator,
-        "values": {zone_id: 10 for zone_id in range(6)},
+        "client": client,
+        "values": {zone_id: DEFAULT_DAMPER for zone_id in range(ZONE_COUNT)},
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
