@@ -6,7 +6,6 @@ from .const import COMMAND_HEADER, ZONE_STEP_MAP
 class AirTouchFrame:
     @staticmethod
     def checksum(frame: bytearray) -> int:
-        # APK logic sums bytes 0..11 as unsigned and stores the low byte in byte 12.
         return sum(b & 0xFF for b in frame[:12]) & 0xFF
 
     @staticmethod
@@ -20,5 +19,14 @@ class AirTouchFrame:
         frame = bytearray(13)
         frame[0:3] = COMMAND_HEADER
         frame[byte_index] = action_value
+        frame[12] = AirTouchFrame.checksum(frame)
+        return bytes(frame)
+
+    @staticmethod
+    def build_init_packet() -> bytes:
+        frame = bytearray(13)
+        frame[0] = 0x55
+        frame[1] = 0x00
+        frame[2] = 0x0C
         frame[12] = AirTouchFrame.checksum(frame)
         return bytes(frame)

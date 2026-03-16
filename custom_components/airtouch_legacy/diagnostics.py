@@ -7,6 +7,7 @@ async def async_get_config_entry_diagnostics(hass, entry):
     store = hass.data[DOMAIN][entry.entry_id]
     return {
         "optimistic_values": store["values"],
+        "discovery": store["discovery"],
         "zone_step_map": ZONE_STEP_MAP,
-        "notes": "APK-logic build: 13-byte step commands, optimistic values, no controller readback parsing.",
+        "notes": "UDP 48899 discovery plus APK-logic 13-byte TCP step commands.",
     }

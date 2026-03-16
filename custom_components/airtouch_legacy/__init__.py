@@ -20,6 +20,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = {
         "client": client,
         "values": {zone_id: DEFAULT_DAMPER for zone_id in range(ZONE_COUNT)},
+        "discovery": {
+            "host": host,
+            "port": port,
+            "method": entry.data.get("discovery_method", "manual"),
+        },
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
