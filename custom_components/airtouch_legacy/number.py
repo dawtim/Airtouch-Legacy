@@ -9,7 +9,8 @@ from .entity import AirTouchEntity
 async def async_setup_entry(hass, entry, async_add_entities):
     store = hass.data[DOMAIN][entry.entry_id]
     coordinator = store["coordinator"]
-    async_add_entities([AirTouchZoneDamper(coordinator, store["client"], zone_id) for zone_id in range(ZONE_COUNT)])
+    client = store["client"]
+    async_add_entities([AirTouchZoneDamper(coordinator, client, zone_id) for zone_id in range(ZONE_COUNT)])
 
 
 class AirTouchZoneDamper(AirTouchEntity, NumberEntity):

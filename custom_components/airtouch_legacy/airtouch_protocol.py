@@ -4,6 +4,8 @@ from .const import (
     ZONE_COUNT,
     ZONE_SWITCH_MAP,
     ZONE_STEP_MAP,
+    LIVE_ZONE_OFFSET,
+    LIVE_DAMPER_OFFSET,
 )
 
 
@@ -52,37 +54,27 @@ class AirTouchFrame:
         if not data:
             raise ValueError("Empty controller response")
 
-        # Use the last 66fa frame if multiple chunks were concatenated.
         start = data.rfind(b"\x66\xfa")
-        if start != -1:
-            frame = data[start:]
-        else:
-            frame = data
+        frame = data[start:] if start != -1 else data
 
-        # Best-effort short-frame parser.
-        # This does NOT claim the offsets are final.
+        if len(frame) < LIVE_DAMPER_OFFSET + ZONE_COUNT:
+            raise ValueError(f"State frame too short: {len(frame)}")
+
         zones = []
         for i in range(ZONE_COUNT):
-            base = 20 + (i * 8)
-            enabled = False
-            damper = 0
+            raw_zone = frame[LIVE_ZONE_OFFSET + i]
+            raw_damper = frame[LIVE_DAMPER_OFFSET + i]
 
-            if len(frame) > base + 2:
-                enabled = bool(frame[base + 2])
+            enabled = (raw_zone & 0x80) != 0
+            damper = max(0, min(100, int(raw_damper) * 10))
 
-            if len(frame) > base + 1:
-                raw = frame[base + 1]
-                # Clamp guessed readback into 0..100
-                damper = max(0, min(100, int(raw)))
-
-            zones.append(
-                {
-                    "id": i,
-                    "enabled": enabled,
-                    "damper": damper,
-                    "damper_raw": frame[base + 1] if len(frame) > base + 1 else None,
-                }
-            )
+            zones.append({
+                "id": i,
+                "enabled": enabled,
+                "zone_raw": int(raw_zone),
+                "damper_raw": int(raw_damper),
+                "damper": damper,
+            })
 
         return {
             "zones": zones,

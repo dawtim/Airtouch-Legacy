@@ -4,35 +4,36 @@ HACS-compatible Home Assistant integration for legacy Polyaire AirTouch / ZoneTo
 
 ## This build
 
-This package is based on the APK/socket logic and implements:
+This version is based on:
+- live packet captures
+- APK command logic
+- real controller diagnostics from Home Assistant
 
-- TCP port `8899`
+It provides:
+- TCP control on port `8899`
 - UDP discovery on `48899`
-- 13-byte control packets with checksum
-- persistent TCP listener
-- non-optimistic zone switch state
-- non-optimistic damper state
-- 6 zones
+- 6 real zone switches
+- 6 real damper controls
+- non-optimistic readback from the controller frame
 
-## State parsing used in this build
+## Important
 
-This build parses the large controller state frame using these APK-derived offsets:
-
-- zone state bytes start at `0xE7`
-- damper bytes start at `0x135`
-- checksum byte at `0x145`
-
-For the first 6 zones:
-- zone state: bytes `0xE7` .. `0xEC`
-- zone damper: bytes `0x135` .. `0x13A`
-
-Damper values are interpreted as raw step values `0..10` and displayed as percentages `0..100`.
-
-## Entities created
+This creates **12 entities total**, representing **6 zones**:
 
 - `switch.airtouch_zone_1` ... `switch.airtouch_zone_6`
 - `number.airtouch_zone_1_damper` ... `number.airtouch_zone_6_damper`
 
+That is expected.
+
+## Live frame parsing used in this build
+
+Based on the live diagnostic frame you provided:
+
+- zone bytes: `232..237`
+- damper bytes: `309..314`
+
+Damper values are interpreted as raw steps `0..10` and displayed as percentages `0..100`.
+
 ## Notes
 
-This is the first non-optimistic/stateful build. If your controller firmware differs, offsets may still need adjustment.
+This is the most grounded non-optimistic build so far, but if your controller firmware differs, the offsets may still need small adjustments.

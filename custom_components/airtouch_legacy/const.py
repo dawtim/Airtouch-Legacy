@@ -8,12 +8,8 @@ MIN_DAMPER = 0
 MAX_DAMPER = 100
 DAMPER_STEP = 10
 
-STATE_MIN_LEN = 0x146  # 326 bytes
-ZONE_STATE_OFFSET = 0xE7
-ZONE_DAMPER_OFFSET = 0x135
-CHECKSUM_OFFSET = 0x145
-
-INIT_PACKET = bytes([0x55, 0x00, 0x0C, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x61])
+LIVE_ZONE_OFFSET = 232
+LIVE_DAMPER_OFFSET = 309
 
 # zone_id: (payload_byte_index, on_value, off_value)
 ZONE_SWITCH_MAP = {
