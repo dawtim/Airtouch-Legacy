@@ -58,9 +58,6 @@ class AirTouchClient:
         data = self.read_frame()
         return AirTouchFrame.parse_state(data)
 
-    def send_zone(self, zone: int, enabled: bool) -> None:
-        self.send(AirTouchFrame.build_zone_switch(zone, enabled))
-
     def step_damper(self, zone: int, direction: str) -> None:
         self.send(AirTouchFrame.build_damper_step(zone, direction))
 

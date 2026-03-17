@@ -2,38 +2,45 @@
 
 HACS-compatible Home Assistant integration for legacy Polyaire AirTouch / ZoneTouch controllers.
 
-## This build
+## v2.6.2 damper-only build
 
-This version is based on:
-- live packet captures
-- APK command logic
-- real controller diagnostics from Home Assistant
+This build removes zone switches entirely and keeps only the working damper logic.
 
-It provides:
+Included:
 - TCP control on port `8899`
 - UDP discovery on `48899`
-- 6 real zone switches
-- 6 real damper controls
-- non-optimistic readback from the controller frame
+- 6 non-optimistic damper controls
+- live damper readback from the controller frame
 
-## Important
+Not included:
+- zone switches
+- climate entity
+- temperature sensors
 
-This creates **12 entities total**, representing **6 zones**:
+## Entities created
 
-- `switch.airtouch_zone_1` ... `switch.airtouch_zone_6`
-- `number.airtouch_zone_1_damper` ... `number.airtouch_zone_6_damper`
-
-That is expected.
+- `number.airtouch_zone_1_damper`
+- `number.airtouch_zone_2_damper`
+- `number.airtouch_zone_3_damper`
+- `number.airtouch_zone_4_damper`
+- `number.airtouch_zone_5_damper`
+- `number.airtouch_zone_6_damper`
 
 ## Live frame parsing used in this build
 
-Based on the live diagnostic frame you provided:
+Based on the live diagnostic frame:
 
-- zone bytes: `232..237`
 - damper bytes: `309..314`
 
 Damper values are interpreted as raw steps `0..10` and displayed as percentages `0..100`.
 
-## Notes
+## Installation
 
-This is the most grounded non-optimistic build so far, but if your controller firmware differs, the offsets may still need small adjustments.
+1. Remove the old AirTouch integration entry
+2. Replace the old `custom_components/airtouch_legacy` folder with this one
+3. Restart Home Assistant
+4. Add **AirTouch Legacy** again
+
+## Note
+
+This build intentionally removes the zone switch write path because it was not validated.

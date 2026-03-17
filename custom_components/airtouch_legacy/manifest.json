@@ -1,7 +1,7 @@
 {
   "domain": "airtouch_legacy",
   "name": "AirTouch Legacy HVAC",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "documentation": "https://github.com/yourname/homeassistant-airtouch-legacy",
   "iot_class": "local_push",
   "requirements": [],
